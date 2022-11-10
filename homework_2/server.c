@@ -14,7 +14,11 @@
 #define NAME_SEM_2 "/sem2"
 #define NAME_SHM_1 "/shm1"
 #define NAME_SHM_2 "/shm2"
-char ex[9];
+
+void nam(char nam[]);
+void errorExit(char err[]);
+
+
 struct users{
     char names[20];
 };
@@ -27,8 +31,6 @@ struct message *msg_send;
 struct users client[20];
 int count_user = 0;
 
-void nam(char nam[]);
-void errorExit(char err[]);
 
 void errorExit(char err[]){
     perror(err);
@@ -49,6 +51,7 @@ void nam(char buff[]){
         count_user++;
         printf("------------\n");
         printf("Количество клиентов: %d\n", count_user);
+
         for(int i = 0; i <= (count_user - 1); i++)
             printf("%s\n", client[i].names);
         printf("------------\n");
@@ -58,7 +61,7 @@ void nam(char buff[]){
 }
 
 void *server(void *args){
-  
+    struct message *msg_rece;
 
     while(1){
         sem_t *fd_sem1 = sem_open(NAME_SEM_1, O_CREAT|O_RDWR, 0666,0);
@@ -70,14 +73,13 @@ void *server(void *args){
         if(fd_shm1 == -1){
             perror("shm_open1");
             exit(EXIT_FAILURE);
-        }
-        msg_send = mmap(NULL, sizeof(struct message), PROT_READ|PROT_WRITE, MAP_SHARED, fd_shm1,0);                                 
+        }msg_send = mmap(NULL, sizeof(struct message), PROT_READ|PROT_WRITE, MAP_SHARED, fd_shm1,0);                                 
         if(msg_send == MAP_FAILED)
             errorExit("mmap1");
-           
+        
         nam(msg_send->user);
     
-        struct message *msg_rece;
+        
         sem_t  *fd_sem2 = sem_open(NAME_SEM_2, O_RDWR);
         if(fd_sem2 == SEM_FAILED)
             errorExit("sem_open2");
@@ -103,7 +105,7 @@ void *server(void *args){
 }
 
 int main(void){
-    
+    char ex[5];
     pthread_t thread;
 
     printf("Для выхода из сервера напишите: exit\n");
@@ -111,9 +113,9 @@ int main(void){
     pthread_create(&thread,NULL, server, NULL);
   
      while(1){
-        fgets(ex, 9,stdin);
+        fgets(ex, 5,stdin);
         
-        if(strcmp(ex,"exit\n") == 0){
+        if(strcmp(ex,"exit") == 0){
             pthread_cancel(thread);
            
             

@@ -3,7 +3,7 @@ object = client server
 all: $(object)
 
 $(object): %: %.c
-		gcc $< -o $@ -pthread
+		gcc $< -o $@ -pthread -g
 
 
 .PHONY := clean

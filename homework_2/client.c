@@ -14,24 +14,26 @@
 #define NAME_SHM_1 "/shm1"
 #define NAME_SHM_2 "/shm2"
 
+void errorExit(char err[]);
+
 struct message{
     char name_user_smh[21];
     char user[20];
     char msg[70];
 };
 struct message *msg_send;
-void errorExit(char err[]);
+
 
 void errorExit(char err[]){
     perror(err);
     exit(EXIT_FAILURE);
 }
 
-void *send(void *args){
+void *send(){
     char name[20];
-
+    memset(name, '\0', sizeof(name));
     printf("Введите имя:");
-    fgets(name, sizeof(name), stdin);
+    fgets(name, 20, stdin);
     printf("Для выхода из чата напишите: exit\n");
 
     for(int i = 0; i < 20; i++){
@@ -72,7 +74,7 @@ void *send(void *args){
     }   
 
 }
-void *receive(void *args){
+void *receive(){
     struct message *msg_rece;
 
     while(1){
@@ -100,7 +102,6 @@ void *receive(void *args){
 }
 int main(void){
     pthread_t thread[2]; 
-    //name(attr);
     
     if(pthread_create(&thread[0], NULL, send, NULL) == -1)
         errorExit("pthread_create");
